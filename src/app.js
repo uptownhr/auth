@@ -1,22 +1,21 @@
 const logger = require('./lib/logger')
 const db = require('./config/db')
 
-logger.info('initializing mongo connection')
-db
-    .then(res => {
-	logger.info('mongo connected')
-    })
-    .catch(err => {
-	logger.error(err)
-    })
 
-logger.info('initializing app')
-const app = require('express')()
-const morgan = require('morgan')(process.env.HTTP_LOGGER_FORMAT, {stream: logger.stream})
-const controllers = require('./controllers')
+module.exports = {
+  async init () {
+    await db.init()
 
-app.use(morgan)
-app.use(controllers)
+    logger.info('initializing app')
+    const app = require('express')()
+    const morgan = require('morgan')(process.env.HTTP_LOGGER_FORMAT, {stream: logger.stream})
+    const controllers = require('./controllers')
 
-logger.info('app initialized')
-module.exports = app
+    app.use(morgan)
+    app.use(controllers)
+
+    logger.info('app initialized')
+
+    return app
+  }
+}
